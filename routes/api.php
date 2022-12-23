@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PeliculaController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,4 +19,19 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+Route::post('login', [AuthController::class, 'login']);
+
+Route::prefix('pelicula')->middleware('auth')->group(function () {
+
+    Route::middleware('role:admin')->group(function () {
+        Route::post('create', [PeliculaController::class, 'peliculaCreate']);
+        Route::post('update/{id}', [PeliculaController::class, 'peliculaUpdate']);
+        Route::delete('delete/{id}', [PeliculaController::class, 'peliculaDelete']);
+    });
+    Route::middleware('role:cliente|admin')->group(function () {
+        Route::get('list', [PeliculaController::class, 'peliculaList']);
+        Route::get('info/{id}', [PeliculaController::class, 'peliculaInfo']);
+    });
 });
